@@ -3,5 +3,6 @@
     "onefile",
     "pyinstaller",
     "venv"
-  ]
+  ],
+  "python-envs.pythonProjects": []
 }
