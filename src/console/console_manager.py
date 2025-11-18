@@ -2,7 +2,7 @@ import os
 from collections import namedtuple
 from typing import List, Optional
 
-from .console_styles import Colors
+from console.console_styles import Colors
 
 ConsoleEntry = namedtuple('ConsoleEntry', ['is_input', 'text'])
 """

@@ -2,7 +2,7 @@
 
 Use this command to run the wizard emergency game:
 ```
-uv run -m game.wizard_emergency
+PYTHONPATH=src uv run wizard-emergency.py
 ```
 
 "uv" is used for python version management. "uv" documentation can be found here: https://github.com/astral-sh/uv

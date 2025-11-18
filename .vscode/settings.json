@@ -2,7 +2,11 @@
   "cSpell.words": [
     "onefile",
     "pyinstaller",
+    "PYTHONPATH",
     "venv"
   ],
-  "python-envs.pythonProjects": []
+  "python-envs.pythonProjects": [],
+  "python.analysis.extraPaths": [
+    "src"
+  ]
 }

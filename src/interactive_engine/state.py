@@ -43,6 +43,3 @@ class State:
             init_text (str): The text to display when the state is initialized.
         """
         self.init_text = init_text
-
-
-
