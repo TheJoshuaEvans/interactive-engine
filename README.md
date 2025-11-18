@@ -16,7 +16,7 @@ uv pip install -r requirements.txt
 ```
 
 ## 3. Run the game
-Note that the PYTHONPATH environment variable must be set to "src" to run the raw python file
+Note that the PYTHONPATH environment variable must be set to "src" to run the raw python file. Also, the game _must_ be run from the project root
 ```sh
 PYTHONPATH=src uv run wizard_emergency.py
 ```

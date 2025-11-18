@@ -1,3 +1,2 @@
 # requirements.txt
-# No dependencies required for echo functionality
 pyinstaller

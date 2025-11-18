@@ -26,5 +26,6 @@ def main():
     except KeyboardInterrupt:
         # Handle Ctrl+C gracefully
         console.write(exit_text)
+
 if __name__ == "__main__":
     main()

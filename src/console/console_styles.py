@@ -64,7 +64,22 @@ def style(*codes: str) -> str:
     Returns:
         str: The ANSI escape code string.
     """
+
+    # It's just a standardized magic string
     return f'\033[{";".join(codes)}m'
+
+def remove_styles(text: str) -> str:
+    """
+    Removes all ANSI styles from the given text
+
+    Args:
+        text (str): The text with ANSI styles.
+    Returns:
+        str: The text without ANSI styles.
+    """
+    import re
+    ansi_escape = re.compile(r'\033\[[0-9;]*m')
+    return ansi_escape.sub('', text)
 
 class Graphics:
     """

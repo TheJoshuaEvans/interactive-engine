@@ -1,8 +1,9 @@
 import os
+import re
 from collections import namedtuple
 from typing import List, Optional
 
-from console.console_styles import Colors
+from console.console_styles import Colors, remove_styles
 
 ConsoleEntry = namedtuple('ConsoleEntry', ['is_input', 'text'])
 """
@@ -103,6 +104,92 @@ class ConsoleManager:
         self._input_prefix = prefix
 
     # --------- Private Methods ---------
+    def _wrap_text_with_ansi(self, text: str, width: int) -> list[str]:
+        """
+        Wraps text to the specified width while preserving ANSI escape sequences.
+        Words shorter than the width will not be broken apart.
+
+        Args:
+            text (str): The text to wrap (may contain ANSI codes).
+            width (int): The maximum visible width per line.
+
+        Returns:
+            list[str]: List of wrapped lines with ANSI codes preserved.
+        """
+        # Pattern to match ANSI escape sequences
+        ansi_pattern = re.compile(r'(\033\[[0-9;]*m)')
+
+        # Split text into segments (text and ANSI codes)
+        segments = ansi_pattern.split(text)
+
+        wrapped_lines = []
+        current_line = ''
+        current_line_visible_length = 0
+        active_styles = []  # Track currently active ANSI codes
+
+        for segment in segments:
+            if ansi_pattern.match(segment):
+                # This is an ANSI code - add it without affecting visible length
+                current_line += segment
+                active_styles.append(segment)
+            else:
+                # This is visible text - split by words
+                words = re.split(r'(\s+)', segment)  # Split on whitespace, keeping delimiters
+
+                for word in words:
+                    if not word:
+                        continue
+
+                    word_length = len(word)
+
+                    # If adding this word would exceed width
+                    if current_line_visible_length + word_length > width:
+                        # If the word itself is longer than width, we must break it
+                        if word_length > width:
+                            # Add as much as we can to current line
+                            space_left = width - current_line_visible_length
+                            if space_left > 0:
+                                current_line += word[:space_left]
+                                word = word[space_left:]
+
+                            # Start a new line
+                            if current_line:
+                                wrapped_lines.append(current_line)
+                            current_line = ''.join(active_styles)
+                            current_line_visible_length = 0
+
+                            # Break remaining word across lines
+                            while len(word) > width:
+                                current_line += word[:width]
+                                wrapped_lines.append(current_line)
+                                word = word[width:]
+                                current_line = ''.join(active_styles)
+                                current_line_visible_length = 0
+
+                            # Add remaining part of word
+                            if word:
+                                current_line += word
+                                current_line_visible_length = len(word)
+                        else:
+                            # Word fits within width, so move to next line
+                            if current_line_visible_length > 0:
+                                wrapped_lines.append(current_line)
+                                current_line = ''.join(active_styles)
+                                current_line_visible_length = 0
+
+                            current_line += word
+                            current_line_visible_length = word_length
+                    else:
+                        # Word fits on current line
+                        current_line += word
+                        current_line_visible_length += word_length
+
+        # Add the last line if it has content
+        if current_line_visible_length > 0 or current_line:
+            wrapped_lines.append(current_line)
+
+        return wrapped_lines if wrapped_lines else [text]
+
     def _clear_console(self) -> None:
         """
         Clears the console screen using the appropriate system command.
@@ -132,9 +219,28 @@ class ConsoleManager:
 
         # Pad or truncate each line to fit the console width minus borders
         content_width = width - 4  # Account for left, right borders, and horizontal buffer
-        padded_lines = [
-            f' {line[:content_width]} '.ljust(content_width + 2) for line in lines
-        ]
+
+        padded_lines: list[str] = []
+        for line in lines:
+            # Visible version without ANSI styles for length calculations
+            stripped = remove_styles(line)
+
+            # Break into multiple lines if the visible characters exceed the available content width
+            if len(stripped) > content_width:
+                # Wrap the text while preserving ANSI escape sequences
+                wrapped = self._wrap_text_with_ansi(line, content_width)
+                for wrapped_line in wrapped:
+                    visible_text = remove_styles(wrapped_line)
+                    padding_needed = max(0, content_width - len(visible_text))
+                    padded_line = f' {wrapped_line} ' + (' ' * padding_needed)
+                    padded_lines.append(padded_line)
+            else:
+                display_text = line
+                visible_text = stripped
+                # Compute padding based on visible length only
+                padding_needed = max(0, content_width - len(visible_text))
+                padded_line = f' {display_text} ' + (' ' * padding_needed)
+                padded_lines.append(padded_line)
 
         # Fill remaining lines with spaces if not enough lines, including vertical buffer
         while len(padded_lines) < height - 2:  # Account for top and bottom vertical buffer
