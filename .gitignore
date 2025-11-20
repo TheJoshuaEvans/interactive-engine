@@ -208,3 +208,4 @@ __marimo__/
 
 # Don't ignore the pre-defined specs
 !wizard_emergency.spec
+!wizard_emergency_mac.spec

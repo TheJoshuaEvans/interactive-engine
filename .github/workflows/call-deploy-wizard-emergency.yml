@@ -30,7 +30,6 @@ jobs:
     - name: Release Windows Build
       uses: svenstaro/upload-release-action@v2
       with:
-        release_name: ${{ inputs.tag }} Windows
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: dist/*
         tag: ${{ inputs.tag }}
@@ -55,12 +54,11 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build Wizard Emergency
-      run: pyinstaller wizard_emergency.spec
+      run: pyinstaller wizard_emergency_mac.spec
 
     - name: Release macOS Build
       uses: svenstaro/upload-release-action@v2
       with:
-        release_name: ${{ inputs.tag }} MacOS
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: dist/*
         tag: ${{ inputs.tag }}
@@ -90,7 +88,6 @@ jobs:
     - name: Release macOS Build
       uses: svenstaro/upload-release-action@v2
       with:
-        release_name: ${{ inputs.tag }} Linux
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: dist/*
         tag: ${{ inputs.tag }}
