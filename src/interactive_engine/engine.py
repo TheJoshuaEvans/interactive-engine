@@ -85,9 +85,9 @@ class InteractiveEngine:
 
         # Perform any side effects of the action
         if action.gives_items:
-            for item in action.gives_items:
-                # self.player.add_item(item) TODO: Implement inventory lol
-                pass
+            self.player.add_inventory_items(action.gives_items)
+        if action.removes_items:
+            self.player.remove_inventory_items(action.removes_items)
         if action.target_scene:
             # Add a default LOOK action that shows the scene text
             action.target_scene.add_action(

@@ -99,6 +99,29 @@ class Player:
         action types are INVENTORY and COMBINE.
         """
 
+        self.inventory = [] # type: list[Item]
+        """The list of items the player currently has in their inventory."""
+
+    def add_inventory_items(self, items: list['Item']):
+        """
+        Adds items to the player's inventory
+
+        Args:
+            items (list[Item]): The items to add
+        """
+        self.inventory.extend(items)
+
+    def remove_inventory_items(self, items: list['Item']):
+        """
+        Removes items from the player's inventory
+
+        Args:
+            items (list[Item]): The items to remove
+        """
+        for item in items:
+            if item in self.inventory:
+                self.inventory.remove(item)
+
 class Item:
     """Class representing an item that a player can put into their inventory."""
     def __init__(self, name: str, description: str):

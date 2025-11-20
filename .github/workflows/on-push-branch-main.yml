@@ -1,0 +1,9 @@
+name: On Push to Main Branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-wizard-emergency-windows:
+    uses: ./.github/workflows/deploy-wizard-emergency.yml
