@@ -27,14 +27,13 @@ jobs:
     - name: Build Wizard Emergency
       run: pyinstaller wizard_emergency.spec
 
-    - name: Release Windows Build
-      uses: svenstaro/upload-release-action@v2
+    - name: Create or update Release and upload Linux artifact
+      uses: softprops/action-gh-release@v1
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: dist/*
-        tag: ${{ inputs.tag }}
-        overwrite: true
-        file_glob: true
+        files: dist/*
+        tag_name: ${{ inputs.tag }}
+        name: Release ${{ inputs.tag }}
+        body: "Multi-platform release for ${{ inputs.tag }}"
   
   deploy-wizard-emergency-macos:
     runs-on: macos-latest
@@ -56,14 +55,13 @@ jobs:
     - name: Build Wizard Emergency
       run: pyinstaller wizard_emergency_mac.spec
 
-    - name: Release macOS Build
-      uses: svenstaro/upload-release-action@v2
+    - name: Create or update Release and upload Linux artifact
+      uses: softprops/action-gh-release@v1
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: dist/*
-        tag: ${{ inputs.tag }}
-        overwrite: true
-        file_glob: true
+        files: dist/*
+        tag_name: ${{ inputs.tag }}
+        name: Release ${{ inputs.tag }}
+        body: "Multi-platform release for ${{ inputs.tag }}"
 
   deploy-wizard-emergency-linux:
     runs-on: ubuntu-latest
@@ -85,11 +83,10 @@ jobs:
     - name: Build Wizard Emergency
       run: pyinstaller wizard_emergency.spec
 
-    - name: Release macOS Build
-      uses: svenstaro/upload-release-action@v2
+    - name: Create or update Release and upload Linux artifact
+      uses: softprops/action-gh-release@v1
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: dist/*
-        tag: ${{ inputs.tag }}
-        overwrite: true
-        file_glob: true
+        files: dist/*
+        tag_name: ${{ inputs.tag }}
+        name: Release ${{ inputs.tag }}
+        body: "Multi-platform release for ${{ inputs.tag }}"
