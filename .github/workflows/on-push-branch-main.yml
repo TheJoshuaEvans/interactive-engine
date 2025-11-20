@@ -10,16 +10,17 @@ jobs:
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
-    - name: Get version
-      id: get_version
-      run: |
-        if python -c "import tomllib" 2>/dev/null; then
-          VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-        else
-          pip install tomli
-          VERSION=$(python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
-        fi
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          sudo snap install yq
+
+      - name: Get project version
+        id: get_version
+        run: |
+          VERSION=$(yq '.project.version' pyproject.toml)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
   create-tag:
     needs: get-project-version
