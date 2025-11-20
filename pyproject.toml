@@ -1,7 +1,6 @@
-# This file specifies the Python version for uv
 [project]
 name = "tje-interactive-engine"
-version = "0.0.1"
+version = "0.0.2"
 readme = "README.md"
 requires-python = ">=3.12"
 source = { virtual = "." }
