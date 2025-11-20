@@ -6,4 +6,4 @@ on:
 
 jobs:
   deploy-wizard-emergency-windows:
-    uses: ./.github/workflows/deploy-wizard-emergency.yml
+    uses: ./.github/workflows/call-deploy-wizard-emergency.yml
