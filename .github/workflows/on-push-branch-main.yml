@@ -29,12 +29,13 @@ jobs:
       tag: v${{ needs.get-project-version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Tag commit
-        uses: tvdias/github-tagger@v0.0.1
+      - name: Create tag if it doesn't exist
+        uses: rickstaa/action-create-tag@v1
+        continue-on-error: true
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
           tag: v${{ needs.get-project-version.outputs.version }}
+          message: Automated deployment of ${{ github.sha }}
+          tag_exists_error: false
 
   deploy-wizard-emergency-windows:
     needs: create-tag
