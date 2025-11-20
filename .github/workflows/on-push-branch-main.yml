@@ -5,5 +5,37 @@ on:
       - main
 
 jobs:
+  get-project-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+    - name: Get version
+      id: get_version
+      run: |
+        if python -c "import tomllib" 2>/dev/null; then
+          VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+        else
+          pip install tomli
+          VERSION=$(python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  create-tag:
+    needs: get-project-version
+    runs-on: ubuntu-latest
+    outputs:
+      tag: v${{ needs.get-project-version.outputs.version }}
+    steps:
+    - name: Create tag if it doesn't exist
+      uses: rickstaa/action-create-tag@v1
+      with:
+        tag: v${{ needs.get-project-version.outputs.version }}
+        message: Automated deployment of ${{ github.sha }}
+        tag_exists_error: false
+
   deploy-wizard-emergency-windows:
+    needs: create-tag
     uses: ./.github/workflows/call-deploy-wizard-emergency.yml
+    with:
+      tag: ${{ needs.create-tag.outputs.tag }}

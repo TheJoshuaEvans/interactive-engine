@@ -7,37 +7,7 @@ on:
         required: true
         type: string
 jobs:
-  get-project-version:
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.get_version.outputs.version }}
-    steps:
-    - name: Get version
-      id: get_version
-      run: |
-        if python -c "import tomllib" 2>/dev/null; then
-          VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-        else
-          pip install tomli
-          VERSION=$(python -c "import tomli; print(tomli.load(open('pyproject.toml', 'rb'))['project']['version'])")
-        fi
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-  create-tag:
-    needs: get-project-version
-    runs-on: ubuntu-latest
-    outputs:
-      tag: v${{ needs.get-project-version.outputs.version }}
-    steps:
-    - name: Create tag if it doesn't exist
-      uses: rickstaa/action-create-tag@v1
-      with:
-        tag: v${{ needs.get-project-version.outputs.version }}
-        message: Automated deployment of ${{ github.sha }}
-        tag_exists_error: false
-
   deploy-wizard-emergency-windows:
-    needs: create-tag
     runs-on: windows-latest
 
     steps:
@@ -60,15 +30,14 @@ jobs:
     - name: Release Windows Build
       uses: svenstaro/upload-release-action@v2
       with:
-        release_name: ${{ needs.create-tag.outputs.tag }} Windows
+        release_name: ${{ inputs.tag }} Windows
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: dist/*
-        tag: ${{ needs.create-tag.outputs.tag }}
+        tag: ${{ inputs.tag }}
         overwrite: true
         file_glob: true
   
   deploy-wizard-emergency-macos:
-    needs: create-tag
     runs-on: macos-latest
 
     steps:
@@ -91,15 +60,14 @@ jobs:
     - name: Release macOS Build
       uses: svenstaro/upload-release-action@v2
       with:
-        release_name: ${{ needs.create-tag.outputs.tag }} MacOS
+        release_name: ${{ inputs.tag }} MacOS
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: dist/*
-        tag: ${{ needs.create-tag.outputs.tag }}
+        tag: ${{ inputs.tag }}
         overwrite: true
         file_glob: true
 
   deploy-wizard-emergency-linux:
-    needs: create-tag
     runs-on: ubuntu-latest
 
     steps:
@@ -122,9 +90,9 @@ jobs:
     - name: Release macOS Build
       uses: svenstaro/upload-release-action@v2
       with:
-        release_name: ${{ needs.create-tag.outputs.tag }} Linux
+        release_name: ${{ inputs.tag }} Linux
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: dist/*
-        tag: ${{ needs.create-tag.outputs.tag }}
+        tag: ${{ inputs.tag }}
         overwrite: true
         file_glob: true
