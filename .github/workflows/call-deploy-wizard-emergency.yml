@@ -81,7 +81,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build Wizard Emergency
-      run: pyinstaller wizard_emergency.spec
+      run: pyinstaller wizard_emergency_linux.spec
 
     - name: Create or update Release and upload Linux artifact
       uses: softprops/action-gh-release@v1
