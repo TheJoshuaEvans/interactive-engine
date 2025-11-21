@@ -1,5 +1,6 @@
 from typing import Optional
 
+from interactive_engine.utils.get_action import get_action
 from interactive_engine.data_classes import Action, ActionType, Player, Scene
 from interactive_engine.strings import SystemStrings
 
@@ -9,6 +10,17 @@ class InteractiveEngine:
     actions and gameplay states
     """
     _instance = None
+
+    _system_actions = {
+        ActionType.HELP: Action(
+            text=SystemStrings.HELP_TEXT,
+            action_type=ActionType.HELP
+        ),
+        ActionType.EXIT: Action(
+            text=SystemStrings.EXIT_TEXT,
+            action_type=ActionType.EXIT
+        ),
+    }
 
     def __new__(cls):
         """
@@ -55,33 +67,31 @@ class InteractiveEngine:
 
         return out_text
 
+    def set_system_action(self, action: Action) -> None:
+        """
+        Sets a system-wide action that can be used in any scene
+
+        Args:
+            action (Action): The action to set as a system action
+        """
+        if action.action_type is None:
+            raise ValueError("System action must have an action_type set")
+
+        self._system_actions[action.action_type] = action
+
     def run(self, run_str: str) -> str:
         """
         Run a given action string through the engine and return the resulting text
         """
-        # Split the run string using the first space to get the action and target
-        parts = run_str.strip().split(' ', 1)
-        if len(parts) != 2:
-            return SystemStrings.INVALID_COMMAND_PARTS
-
-        action_str, target_str = parts
-
         # Try to find an action matching the action_str and target_str in the current scene
         if not self.current_scene:
             # This should never ever happen if the engine is used correctly
             return "FATAL ERROR: No current scene set in engine."
 
-        action_type = ActionType._value2member_map_.get(action_str.lower()) # type: ActionType # type: ignore
-        if (not action_type):
-            return SystemStrings.MISSING_ACTION_TEXT + f" (Unknown action: {action_str})"
-
-        action_dict = self.current_scene.actions[action_type]
-        if (not action_dict):
-            return SystemStrings.MISSING_ACTION_TEXT + f" (No actions of type: {action_type.value})"
-
-        action = action_dict.get(target_str.lower())
-        if not action:
-            return SystemStrings.MISSING_ACTION_TEXT + f" (No action found for target: {target_str})"
+        try:
+            action = get_action(run_str, self.current_scene.actions | self._system_actions)
+        except ValueError as e:
+            return str(e)
 
         # Perform any side effects of the action
         if action.gives_items:

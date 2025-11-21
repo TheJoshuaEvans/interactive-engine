@@ -1,7 +1,18 @@
 from enum import Enum
-from typing import Optional
+from typing import Callable, Optional
 
 from interactive_engine.strings import PlayerStrings, SystemStrings
+
+on_action_base = Callable[[object, 'Action', 'Scene', 'Player'], None]
+"""
+Type alias for the callable signature used for the on_action attribute in the Action class.
+
+Args:
+    object: The engine instance (not typed to avoid circular imports)
+    Action: The action being performed
+    Scene: The current scene
+    Player: The current player
+"""
 
 class ActionType(Enum):
     """Enumeration of possible action types in the interactive engine."""
@@ -70,6 +81,20 @@ class Action:
 
         self.removes_items: Optional[list[Item]] = removes_items
         """Items this action removes from the player, if any"""
+
+        self.on_action: on_action_base = lambda engine, action, scene, player: None
+        """Callable to execute when the action is performed"""
+
+    def run_action(self, engine, scene: 'Scene', player: 'Player'):
+        """
+        Perform side-effects of running an action
+
+        Args:
+            scene (Scene): The current scene
+            player (Player): The current player
+        """
+        if self.on_action:
+            self.on_action(engine, self, scene, player)
 
     def __str__(self):
         return f"Action(action_type={self.action_type}, text={self.text})"
@@ -170,7 +195,7 @@ class Scene:
             ActionType.SPEAK: {},
             ActionType.TOUCH: {},
             ActionType.TAKE: {},
-        }
+        } # type: dict[ActionType, dict[str, Action]]
         """
         A dictionary mapping ActionTypes to the Action objects that can be performed on this scene. Typical
         action types are MOVE, LOOK, LISTEN, SPEAK, TOUCH, and TAKE.

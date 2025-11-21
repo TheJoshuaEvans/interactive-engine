@@ -1,0 +1,9 @@
+name: On Push to Any Branch
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  deploy-wizard-emergency-windows:
+    uses: ./.github/workflows/call-run-tests.yml

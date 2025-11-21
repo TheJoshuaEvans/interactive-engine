@@ -15,7 +15,7 @@ def start_game(console: ConsoleManager) -> None:
         return
 
     console.write("Welcome to Wizard Emergency! You are a wizard and there is an emergency!")
-    console.write("Type 'exit' to quit or 'help' for assistance.")
+    console.write("Type 'exit' to quit or 'help' for assistance. Run an empty command to re-render the console.")
     console.draw_dinkus()
 
     engine.player = Player(
@@ -47,7 +47,7 @@ def start_game(console: ConsoleManager) -> None:
     )
     starting_scene.add_action(
         action_type=ActionType.TAKE,
-        keyword='wizard hat',
+        keyword='hat',
         action=Action(
             text="You pick up the dusty old had from the stool, give it a quick shake, and place it on your head. You don't feel any more magical, but you do feel far less naked. The dust from the hat tickles your nose.",
             gives_items=[wizard_hat_item],
@@ -56,7 +56,7 @@ def start_game(console: ConsoleManager) -> None:
     )
     starting_scene_no_key.add_action(
         action_type=ActionType.TAKE,
-        keyword='wizard hat',
+        keyword='hat',
         action=Action(
             text="You pick up the dusty old had from the stool, give it a quick shake, and place it on your head. You don't feel any more magical, but you do feel far less naked. The dust from the hat tickles your nose.",
             gives_items=[wizard_hat_item],
@@ -99,17 +99,12 @@ def main():
         while True:
             user_input = console.input("> ")
 
-            # Detect Exit game
-            if user_input.lower() == 'exit':
-                console.write(exit_text)
-                return
-
             # Detect Refresh
             if user_input.lower() == '':
                 # Do nothing to trigger another call to console.input - which will redraw the screen
                 continue
 
-            # Print an empty line for readability
+            # Print an empty line between messages for readability
             console.write_empty()
 
             # Run the input through the engine and get the output

@@ -10,5 +10,13 @@
   "python-envs.pythonProjects": [],
   "python.analysis.extraPaths": [
     "src"
-  ]
+  ],
+  "python.testing.unittestEnabled": true,
+  "python.testing.unittestArgs": [
+    "-v",
+    "-s",
+    "./src",
+    "-p",
+    "test*.py"
+  ],
 }
