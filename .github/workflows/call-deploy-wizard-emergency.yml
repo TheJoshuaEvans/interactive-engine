@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
 
     steps:
     - name: Checkout repository
@@ -36,9 +36,37 @@ jobs:
       with:
         name: wizard-emergency-${{ matrix.os }}
         path: dist/*
+
+  build-wizard-emergency_mac:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Build Wizard Emergency
+      run: pyinstaller wizard_emergency.spec
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: wizard-emergency-macos-latest
+        path: dist/*
   
   deploy-wizard-emergency:
-    needs: build-wizard-emergency
+    needs: 
+      - build-wizard-emergency
+      - build-wizard-emergency_mac
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
