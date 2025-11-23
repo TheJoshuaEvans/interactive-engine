@@ -27,9 +27,6 @@ class ActionType(Enum):
     SPEAK = "speak"
     TOUCH = "touch"
     TAKE = "take"
-
-    # Item actions
-    EXAMINE = "examine"
     USE = "use"
 
     # Player actions
@@ -42,6 +39,7 @@ class ActionType(Enum):
     # LOAD = "load"
     # CONTINUE = "continue"
     # RESTART = "restart"
+    LIST = "list"
     EXIT = "exit"
 
     # Meta actions

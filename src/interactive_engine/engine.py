@@ -28,6 +28,12 @@ class InteractiveEngine:
             action_type=ActionType.EXIT,
             on_action=lambda e,a,s,p: SystemStrings.EXIT_TEXT
         ),
+        ActionType.LIST: {
+            'actions': Action(
+                action_type=ActionType.LIST,
+                on_action=lambda e,a,s,p: "\n".join(e.get_all_actions().keys()) # type: ignore
+            )
+        }
     }
 
     def __new__(cls):
@@ -44,6 +50,26 @@ class InteractiveEngine:
 
         self.player = Player() # type: Player
         """The player"""
+
+        def list_actions() -> str:
+            """
+            Generate a string that lists all available actions, the action type and code (if applicable).
+            """
+            all_actions = self.get_all_actions()
+            action_lines = []
+            for action_type, actions in all_actions.items():
+                if isinstance(actions, dict):
+                    for keyword, action in actions.items():
+                        action_lines.append(f"- {action_type.value.lower()} {keyword.lower()}")
+                else:
+                    action_lines.append(f"- {action_type.value.lower()}")
+            return "Available actions:\n" + "\n".join(action_lines)
+
+        # Set the "list actions" action
+        self._system_actions[ActionType.LIST]['actions'] = Action(
+            action_type=ActionType.LIST,
+            on_action=lambda e,a,s,p: list_actions()
+        )
 
     def on_exit(self, on_exit: on_exit_def) -> None:
         """
@@ -115,7 +141,6 @@ class InteractiveEngine:
         current_scene = self.current_scene
         all_actions = self.get_all_actions()
         try:
-            # Get actions from the current scene, player, and system sources
             action = get_action(run_str, all_actions)
         except ValueError as e:
             return str(e)
