@@ -1,5 +1,4 @@
-[![GitHub Release](https://img.shields.io/github/v/release/TheJoshuaEvans/interactive-engine?label=Latest%20Release)](https://github.com/TheJoshuaEvans/interactive-engine/releases/latest) [![Latest Build](https://img.shields.io/github/actions/workflow/status/TheJoshuaEvans/interactive-engine/on-push-branch-main.yml?label=Latest%20Build)](https://github.com/TheJoshuaEvans/interactive-engine/actions/workflows/on-push-branch-main.yml) [![Latest Tests](https://img.shields.io/github/actions/workflow/status/TheJoshuaEvans/interactive-engine/on-push.yml?label=Latest%Tests)](https://github.com/TheJoshuaEvans/interactive-engine/actions/workflows/on-push.yml) 
-
+[![GitHub Release](https://img.shields.io/github/v/release/TheJoshuaEvans/interactive-engine?label=Latest%20Release)](https://github.com/TheJoshuaEvans/interactive-engine/releases/latest) [![Latest Build](https://img.shields.io/github/actions/workflow/status/TheJoshuaEvans/interactive-engine/on-push-branch-main.yml?label=Latest%20Build)](https://github.com/TheJoshuaEvans/interactive-engine/actions/workflows/on-push-branch-main.yml)
 
 # TJE Interactive: Engine
 
@@ -15,9 +14,16 @@ The "Wizard Emergency" game is available as a single executable for linux, windo
 - `wizard_emergency.exe` - **Windows** executable
 - `wizard_emergency_mac` - **MacOS** executable
 
+To play the game, just download the correct release for your platform and run the standalone executable!
+
+### Security Note
+The binaries are unsigned, since this is just very early days, so your system will likely give you security warnings when running it. The release process is entirely automated using resources publicly available on GitHub (or trusted providers), so feel free to give it an audit if you are concerned. The [deployment workflows themselves](./.github/workflows/on-push-branch-main.yml) are a good place to start
+
 # Development
 
 ## 1. Install Python v3.12
+Other minor versions may work, but this project is designed to specifically use python v3.12
+
 I use us `uv` (https://github.com/astral-sh/uv) to handle python versions, and this project is configured to automatically use the correct version when using `uv`. When running a script with `uv`, replace `python` with `uv` or `uv run` depending on the context. Other platforms may also have different "python" path strings
 
 ## 2. Set up environment

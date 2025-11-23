@@ -2,8 +2,9 @@ name: On Push to Any Branch
 on:
   push:
     branches:
-      - '*'
+      - '**'
+      - '!main'
 
 jobs:
-  deploy-wizard-emergency-windows:
+  run-tests:
     uses: ./.github/workflows/call-run-tests.yml

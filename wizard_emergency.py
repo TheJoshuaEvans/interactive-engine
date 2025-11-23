@@ -3,6 +3,7 @@ import time
 from typing import Optional
 
 from console.console_manager import ConsoleManager
+from console.console_styles import BrightColors
 
 from interactive_engine.engine import InteractiveEngine
 from interactive_engine.data_classes import ActionType, Action, Item, Player, Scene
@@ -166,7 +167,7 @@ def start_game(console: ConsoleManager) -> None:
     )
 
     console.bottom_border_text = f" - Actions Remaining: {actions_remaining} - "
-    console.top_border_text = f" Wizard Emergency v{get_version()} "
+    console.top_border_text = f"{BrightColors.BLUE} - Wizard Emergency v{get_version()} - {BrightColors.RESET}"
 
     start_text = engine.set_starting_scene(dusty_cell)
     console.write(start_text)

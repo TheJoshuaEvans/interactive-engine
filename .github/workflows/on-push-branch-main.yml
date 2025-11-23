@@ -5,6 +5,9 @@ on:
       - main
 
 jobs:
+  run-tests:
+    uses: ./.github/workflows/call-run-tests.yml
+
   get-project-version:
     runs-on: ubuntu-latest
     outputs:
@@ -23,7 +26,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
   create-tag:
-    needs: get-project-version
+    needs: [get-project-version, run-tests]
     runs-on: ubuntu-latest
     outputs:
       tag: v${{ needs.get-project-version.outputs.version }}
@@ -38,7 +41,7 @@ jobs:
           tag_exists_error: false
 
   deploy-wizard-emergency-windows:
-    needs: create-tag
+    needs: [create-tag, run-tests]
     uses: ./.github/workflows/call-deploy-wizard-emergency.yml
     with:
       tag: ${{ needs.create-tag.outputs.tag }}

@@ -1,8 +1,9 @@
 from typing import Callable, Optional
 
+from console.console_styles import Colors
 from interactive_engine.utils.get_action import get_action
 from utils.deep_merge import deep_merge
-from interactive_engine.data_classes import Action, ActionType, Player, Scene
+from interactive_engine.data_classes import Action, ActionType, Player, Scene, empty_action
 from interactive_engine.strings import SceneStrings, SystemStrings
 
 on_exit_def = Callable[[], None]
@@ -29,10 +30,7 @@ class InteractiveEngine:
             on_action=lambda e,a,s,p: SystemStrings.EXIT_TEXT
         ),
         ActionType.LIST: {
-            'actions': Action(
-                action_type=ActionType.LIST,
-                on_action=lambda e,a,s,p: "\n".join(e.get_all_actions().keys()) # type: ignore
-            )
+            'actions': empty_action
         }
     }
 
@@ -51,6 +49,7 @@ class InteractiveEngine:
         self.player = Player() # type: Player
         """The player"""
 
+        # Set the "list actions" action to something nice and dynamic
         def list_actions() -> str:
             """
             Generate a string that lists all available actions, the action type and code (if applicable).
@@ -60,12 +59,11 @@ class InteractiveEngine:
             for action_type, actions in all_actions.items():
                 if isinstance(actions, dict):
                     for keyword, action in actions.items():
-                        action_lines.append(f"- {action_type.value.lower()} {keyword.lower()}")
+                        action_lines.append(f"- {Colors.GREEN}{action_type.value.lower()} {keyword.lower()}{Colors.RESET}")
                 else:
-                    action_lines.append(f"- {action_type.value.lower()}")
+                    action_lines.append(f"- {Colors.GREEN}{action_type.value.lower()}{Colors.RESET}")
             return "Available actions:\n" + "\n".join(action_lines)
 
-        # Set the "list actions" action
         self._system_actions[ActionType.LIST]['actions'] = Action(
             action_type=ActionType.LIST,
             on_action=lambda e,a,s,p: list_actions()

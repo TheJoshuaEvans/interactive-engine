@@ -95,8 +95,13 @@ class Player:
                     on_action=lambda e,a,s,p: p.description
                 )
             },
-            ActionType.INVENTORY: empty_action,
-            ActionType.COMBINE: empty_action
+            ActionType.INVENTORY: Action(
+                on_action=lambda e,a,s,p: PlayerStrings.INVENTORY_EMPTY_TEXT
+                if len(p.inventory) == 0 else
+                PlayerStrings.INVENTORY_LIST_TEXT.format(
+                    items=' (x1)\n- '.join([item.name for item in p.inventory])
+                ) + ' (x1)'
+            )
         }
         """
         A dictionary mapping ActionTypes to the Action objects that can be performed on this player. Typical
