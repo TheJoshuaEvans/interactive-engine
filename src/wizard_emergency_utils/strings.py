@@ -8,7 +8,7 @@ class GameStrings:
         "Type 'exit' to quit or 'help' for assistance. Run an empty command to re-render the console."
     )
 
-    GAME_TITLE_TEXT = f" {BrightColors.BLUE}=== Wizard Emergency {{version}} ==={BrightColors.RESET} "
+    GAME_TITLE_TEXT = f" {BrightColors.BLUE}=== Wizard Emergency v{{version}} ==={BrightColors.RESET} "
 
     ACTIONS_REMAINING_TEXT = f" {BrightColors.BLUE}- Actions remaining: {{actions_remaining}} -{BrightColors.RESET} "
 
