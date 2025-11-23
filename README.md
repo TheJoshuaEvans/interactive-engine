@@ -1,4 +1,4 @@
-[![GitHub Release](https://img.shields.io/github/v/release/TheJoshuaEvans/interactive-engine?label=Latest%20Release)](https://github.com/TheJoshuaEvans/interactive-engine/releases/latest) [![Latest Build](https://img.shields.io/github/actions/workflow/status/TheJoshuaEvans/interactive-engine/on-push-branch-main.yml?label=Latest%20Build)](https://github.com/TheJoshuaEvans/interactive-engine/actions/workflows/on-push-branch-main.yml) 
+[![GitHub Release](https://img.shields.io/github/v/release/TheJoshuaEvans/interactive-engine?label=Latest%20Release)](https://github.com/TheJoshuaEvans/interactive-engine/releases/latest) [![Latest Build](https://img.shields.io/github/actions/workflow/status/TheJoshuaEvans/interactive-engine/on-push-branch-main.yml?label=Latest%20Build)](https://github.com/TheJoshuaEvans/interactive-engine/actions/workflows/on-push-branch-main.yml) [![Latest Tests](https://img.shields.io/github/actions/workflow/status/TheJoshuaEvans/interactive-engine/on-push.yml?label=Latest%20Build)](https://github.com/TheJoshuaEvans/interactive-engine/actions/workflows/on-push.yml) 
 
 
 # TJE Interactive: Engine

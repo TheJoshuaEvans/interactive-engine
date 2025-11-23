@@ -6,7 +6,7 @@ a = Analysis(
     ['wizard_emergency.py'],
     pathex=['src'],
     binaries=[],
-    datas=[],
+    datas=[('pyproject.toml', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

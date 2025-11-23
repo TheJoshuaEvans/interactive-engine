@@ -33,7 +33,9 @@ class ConsoleManager:
     # Default border color
     _border_color = Colors.BLUE
 
-    _border_text = ''
+    _top_border_text = ''
+
+    _bottom_border_text = ''
 
     _break_char: str = ''
 
@@ -95,24 +97,44 @@ class ConsoleManager:
         self._border_color = color
 
     @property
-    def border_text(self) -> str:
+    def top_border_text(self) -> str:
+        """
+        Gets the current top border text for the console window.
+
+        Returns:
+            str: The top border text.
+        """
+        return self._top_border_text
+
+    @top_border_text.setter
+    def top_border_text(self, text: str) -> None:
+        """
+        Sets a new top border text for the console window.
+
+        Args:
+            text (str): The new top border text.
+        """
+        self._top_border_text = text
+
+    @property
+    def bottom_border_text(self) -> str:
         """
         Gets the current border text for the console window.
 
         Returns:
             str: The border text.
         """
-        return self._border_text
+        return self._bottom_border_text
 
-    @border_text.setter
-    def border_text(self, text: str) -> None:
+    @bottom_border_text.setter
+    def bottom_border_text(self, text: str) -> None:
         """
         Sets a new border text for the console window.
 
         Args:
             text (str): The new border text.
         """
-        self._border_text = text
+        self._bottom_border_text = text
 
     @property
     def dinkus_char(self) -> str:
@@ -287,7 +309,25 @@ class ConsoleManager:
         border_chars = f'{self.border_color}{self.border_char}{Colors.RESET}'
 
         # Ensure the top border is always a single line, regardless of overflow
-        top_border = [border_chars * width]  # Single top border line
+        if self._top_border_text:
+            # Calculate border text positioning
+            border_text_visible = remove_styles(self._top_border_text)
+            text_length = len(border_text_visible)
+
+            # Calculate how many border characters we need on each side
+            remaining_width = width - text_length
+            left_border_width = remaining_width // 2
+            right_border_width = remaining_width - left_border_width
+
+            # Build the top border with text in the middle
+            top_border_line = (
+                border_chars * left_border_width +
+                f"{self.border_color}{self._top_border_text}{Colors.RESET}" +
+                border_chars * right_border_width
+            )
+            top_border = [top_border_line]
+        else:
+            top_border = [border_chars * width]  # Single top border line
 
         # Add vertical buffer (empty line) below the top border
         padded_lines.insert(0, ' ' * (content_width + 2))
@@ -297,9 +337,9 @@ class ConsoleManager:
         bordered_lines = [border_chars + line + border_chars for line in padded_lines]
 
         # Add a single bottom border to match the console height
-        if self._border_text:
+        if self._bottom_border_text:
             # Calculate border text positioning
-            border_text_visible = remove_styles(self._border_text)
+            border_text_visible = remove_styles(self._bottom_border_text)
             text_length = len(border_text_visible)
 
             # Calculate how many border characters we need on each side
@@ -310,7 +350,7 @@ class ConsoleManager:
             # Build the bottom border with text in the middle
             bottom_border_line = (
                 border_chars * left_border_width +
-                f"{self.border_color}{self._border_text}{Colors.RESET}" +
+                f"{self.border_color}{self._bottom_border_text}{Colors.RESET}" +
                 border_chars * right_border_width
             )
             bottom_border = [bottom_border_line]
@@ -458,7 +498,7 @@ class ConsoleManager:
         """
         Writes an empty line to the console and records it in history.
         """
-        self.write(" ", clear=False)
+        self.write(" ")
 
     def input(self, prompt: Optional[str] = None) -> str:
         """

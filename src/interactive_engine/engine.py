@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 
 from interactive_engine.utils.get_action import get_action
-from interactive_engine.utils.deep_merge import deep_merge
+from utils.deep_merge import deep_merge
 from interactive_engine.data_classes import Action, ActionType, Player, Scene
 from interactive_engine.strings import SceneStrings, SystemStrings
 

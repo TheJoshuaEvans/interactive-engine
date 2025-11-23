@@ -36,7 +36,7 @@ class SystemStrings:
         "System actions:\n"
         "- HELP: Show this help message!\n"
         "- EXIT: Exit the game.\n"
-        "- CHEAT: List all currently available actions. (not yet implemented)\n"
+        "- CHEAT: List all currently available actions. (not yet implemented)"
     )
 
     MISSING_ACTION_TEXT: ClassVar[str] = "You cannot do that."

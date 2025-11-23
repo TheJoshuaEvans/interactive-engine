@@ -7,7 +7,8 @@ class GameStrings:
         "Welcome to Wizard Emergency! You are a wizard and there is an emergency!\n"
         "Type 'exit' to quit or 'help' for assistance. Run an empty command to re-render the console."
     )
-    EXIT_TEXT = "Goodbye, wizard! Stay safe out there."
+
+    EXIT_TEXT = "\nGoodbye, wizard! Stay safe out there."
 
 class StateKeys:
     """Keys used in scene state dictionaries for the Wizard Emergency game."""
@@ -84,8 +85,8 @@ class ItemStrings:
         CODE = "key"
 
         DESCRIPTION = (
-            "A small, rusty key that looks like it could open a cell door. "
-            "It has an old tag attached that reads 'Cell Key'."
+            "A small key that looks like it could open the cell door. "
+            "This ancient key has seen better days, its metal worn and tarnished by time and... sea salt? "
         )
 
 class PlayerStrings:

@@ -1,28 +1,39 @@
 import sys
 import time
+from typing import Optional
 
 from console.console_manager import ConsoleManager
 
 from interactive_engine.engine import InteractiveEngine
 from interactive_engine.data_classes import ActionType, Action, Item, Player, Scene
+from utils.get_version import get_version
 
 # Import all the strings
 from wizard_emergency_utils.strings import GameStrings, StateKeys
 from wizard_emergency_utils.strings import ActionStrings, ItemStrings, PlayerStrings, SceneStrings
 
-has_started = False
-
-exit_text = "\nGoodbye, wizard! Stay safe out there."
+# Global references to the core libraries
 engine = InteractiveEngine()
+console: Optional[ConsoleManager] = None
 
+# Temporary. TODO: Add a proper action limit system that integrates with the engine itself
 actions_remaining: str|int = "∞"
 
-def start_game(console: ConsoleManager) -> None:
-    """Establish the game state and write the starting text to the console, if the game has not already started."""
-    global has_started
-    if has_started:
-        return
+def graceful_exit(pause_time_seconds: float = 1) -> None:
+    """
+    Handle graceful exit of the game.
 
+    Args:
+        pause_time_seconds (float): Time to wait before exiting, default is 1 second.
+    """
+    global console
+    if console:
+        console.write(GameStrings.EXIT_TEXT)
+
+    time.sleep(pause_time_seconds)
+    sys.exit(0)
+
+def start_game(console: ConsoleManager) -> None:
     console.write(GameStrings.WELCOME_TEXT)
     console.draw_dinkus()
 
@@ -30,14 +41,7 @@ def start_game(console: ConsoleManager) -> None:
     # Custom exit action text
     engine._system_actions[ActionType.EXIT].on_action=lambda e,a,s,p: GameStrings.EXIT_TEXT
 
-    # Graceful exit handling
-    def on_exit_handler() -> None:
-        # Print the exit text, wait a second, then exit
-        console.write(GameStrings.EXIT_TEXT)
-        time.sleep(1)
-        sys.exit(0)
-
-    engine.on_exit(on_exit_handler)
+    engine.on_exit(graceful_exit)
 
     #* Define the player
     engine.player = Player(
@@ -133,6 +137,7 @@ def start_game(console: ConsoleManager) -> None:
         ),
     )
 
+    # Move through the open door an end the game!
     def on_move_door(e,a:Action,s:Scene,p:Player) -> str:
         if not s.state.get(StateKeys.DOOR_OPEN, False):
             return ActionStrings.MoveDoor.FAIL_NOT_OPEN_TEXT
@@ -149,36 +154,44 @@ def start_game(console: ConsoleManager) -> None:
         ),
     )
 
-    console.border_text = f" - Actions Remaining: {actions_remaining} - "
+    console.bottom_border_text = f" - Actions Remaining: {actions_remaining} - "
+    console.top_border_text = f" Wizard Emergency v{get_version()} "
 
     start_text = engine.set_starting_scene(dusty_cell)
     console.write(start_text)
 
 def main():
+    global console
     console = ConsoleManager()
     start_game(console)
 
     # Game loop
-    try:
-        while True:
-            # Wait for the user enter a command
-            user_input = console.input("> ")
+    while True:
+        # Wait for the user enter a command
+        user_input = console.input("> ")
 
-            # Detect Refresh
-            if user_input.lower() == '':
-                # Do nothing to trigger another call to console.input - which will redraw the screen
-                continue
+        # Detect Refresh
+        if user_input.lower() == '':
+            # Do nothing to trigger another call to console.input - which will redraw the screen
+            continue
 
-            # Print an empty line between messages for readability
-            console.write_empty()
+        # Print the user's input back to the console
+        console.write_empty()
+        console.write(f"> {user_input}")
+        console.write_empty()
 
-            # Run the input through the engine and get the output
-            output_text = engine.run(user_input)
-            console.write(output_text)
-
-    except KeyboardInterrupt:
-        # Handle Ctrl+C gracefully
-        console.write(GameStrings.EXIT_TEXT)
+        # Run the input through the engine and get the output
+        output_text = engine.run(user_input)
+        console.write(output_text)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+
+    except KeyboardInterrupt:
+        # Keyboard interrupt (Ctrl+C) gets a graceful exit with no pause
+        graceful_exit(0)
+
+    except Exception as e:
+        # Everything else can stay ugly
+        raise e
