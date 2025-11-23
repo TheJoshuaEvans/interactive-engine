@@ -1,7 +1,8 @@
 from enum import Enum
+from functools import singledispatchmethod
 from typing import Callable, Optional
 
-from interactive_engine.strings import PlayerStrings, SystemStrings
+from interactive_engine.strings import ActionStrings, PlayerStrings, SystemStrings
 
 on_action_def = Callable[[object, 'Action', 'Scene', 'Player'], str]
 """
@@ -14,7 +15,7 @@ Args:
     Player: The current player
 """
 
-empty_lambda_def = lambda engine, action, scene, player: str()
+empty_lambda = lambda engine, action, scene, player: ActionStrings.EMPTY_ACTION_TEXT
 """An "empty" lambda that matches the on_action_base signature"""
 
 class ActionType(Enum):
@@ -50,8 +51,8 @@ class Action:
     """Class representing an action in the interactive engine."""
     def __init__(
             self,
-            action_type: Optional[ActionType] = ActionType.EMPTY,
-            on_action: on_action_def = empty_lambda_def
+            action_type: ActionType = ActionType.EMPTY,
+            on_action: on_action_def = empty_lambda
         ):
         self.action_type = action_type
         """This action's type"""
@@ -90,6 +91,12 @@ class Player:
         """The description of the player."""
 
         self.actions = {
+            # Default action for the player looking at themselves
+            ActionType.LOOK: {
+                'player': Action(
+                    on_action=lambda e,a,s,p: p.description
+                )
+            },
             ActionType.INVENTORY: empty_action,
             ActionType.COMBINE: empty_action
         }
@@ -121,23 +128,29 @@ class Player:
             if item in self.inventory:
                 self.inventory.remove(item)
 
+    def inventory_contains(self, items: list['Item']) -> bool:
+        """
+        Checks if the player's inventory contains all of the specified items
+
+        Args:
+            items (list[Item]): The items to check for
+
+        Returns:
+            contains (bool): True if the item is in the inventory, False otherwise
+        """
+        return all(self.inventory.count(item) > 0 for item in items)
+
 class Item:
     """Class representing an item that a player can put into their inventory."""
-    def __init__(self, name: str, description: str):
+    def __init__(self, name: str, code: str, description: str):
         self.name = name
-        """The name of the item. This is what it must be referred to as in commands."""
+        """The name of the item."""
+
+        self.code = code
+        """The keyword used to reference this item in commands."""
 
         self.description = description
         """The description of the item"""
-
-        self.actions = {
-            ActionType.EXAMINE: empty_action,
-            ActionType.USE: empty_action
-        }
-        """
-        A dictionary mapping ActionTypes to the Action objects that can be performed on this item. Typical
-        action types are EXAMINE and USE.
-        """
 
 class Scene:
     """
@@ -169,10 +182,11 @@ class Scene:
             ActionType.SPEAK: {},
             ActionType.TOUCH: {},
             ActionType.TAKE: {},
+            ActionType.USE: {},
         } # type: dict[ActionType, dict[str, Action]]
         """
         A dictionary mapping ActionTypes to the Action objects that can be performed on this scene. Typical
-        action types are MOVE, LOOK, LISTEN, SPEAK, TOUCH, and TAKE.
+        action types are MOVE, LOOK, LISTEN, SPEAK, TOUCH, TAKE, and USE.
         """
 
         self.state = {}
@@ -205,14 +219,30 @@ class Scene:
 
         return action
 
-    def remove_action(self, action_type: ActionType, keyword: str):
+    @singledispatchmethod
+    def remove_action(self, arg):
+        raise NotImplementedError("Unsupported type for remove_action")
+
+    @remove_action.register(ActionType)
+    def _(self, action_type: ActionType, keyword: str):
         """
-        Removes an action from the scene
+        Removes all actions with a given type and keyword from the scene
 
         Args:
             action_type (ActionType): The type of action to remove
-            keyword (str): The keyword that triggers the action
+            keyword (str): The keyword of the action to remove
         """
         if keyword in self.actions[action_type]:
             del self.actions[action_type][keyword]
 
+    @remove_action.register(Action)
+    def _(self, action: Action):
+        """
+        Removes all actions matching the given action instance from the scene
+
+        Args:
+            action (Action): The action instance to remove
+        """
+        for keyword, act in list(self.actions[action.action_type].items()):
+            if act == action:
+                del self.actions[action.action_type][keyword]

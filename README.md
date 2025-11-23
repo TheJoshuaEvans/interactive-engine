@@ -21,38 +21,50 @@ The "Wizard Emergency" game is available as a single executable for linux, windo
 I use us `uv` (https://github.com/astral-sh/uv) to handle python versions, and this project is configured to automatically use the correct version when using `uv`. When running a script with `uv`, replace `python` with `uv` or `uv run` depending on the context. Other platforms may also have different "python" path strings
 
 ## 2. Set up environment
+Set up python dependencies
 ```sh
 python venv
 python pip install -r requirements.txt
 ```
 
-## 3. Run the game
-Note that the PYTHONPATH environment variable must be set to "src" to run the raw python file. Also, the game _must_ be run from the project root
+## 3. Run unit tests
+Run all the unit tests
 ```sh
-PYTHONPATH=src python wizard_emergency.py
+python -m unittest discover -s src -p "test*.py"
 ```
 
-> ### Run on Windows
-> Use these commands to run the game in powershell
-> ```ps
-> $env:PYTHONPATH = "src"
-> python wizard_emergency.py
-> ```
-> Note that the environment variable only needs to be set once per session
+## 4. Run the game
+Before running the game, ensure the `PYTHONPATH` environment variable is set to "src"
 
-## 4. Build the game
+Linux:
+```sh
+export PYTHONPATH=src
+```
+
+Windows (Powershell):
+```ps
+$env:PYTHONPATH = "src"
+```
+
+Once the envar is set for the current session, you can run the main game file directly
+
+```sh
+python wizard_emergency.py
+```
+
+## 5. Build the game
 The build will be for the current system. On Ubuntu it generates a runnable library, on Windows it generates a .exe, etc
 ```sh
 python pyinstaller wizard_emergency.spec
 ```
-
 
 # `uv` Commands
 For convenience, all the commands in the "uv" format:
 ```sh
 uv venv
 uv pip install -r requirements.txt
-PYTHONPATH=src uv run wizard_emergency.py
+uv run wizard_emergency.py
+uv run -m unittest discover -s src -p "test*.py"
 uv run pyinstaller wizard_emergency.spec
 ```
 ---

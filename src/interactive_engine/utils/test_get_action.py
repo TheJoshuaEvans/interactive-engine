@@ -10,16 +10,16 @@ class TestGetAction(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures before each test method."""
         # Create mock actions for testing
-        self.look_scene_action = Action("You look around the scene.", ActionType.LOOK)
-        self.look_door_action = Action("You examine the door closely.", ActionType.LOOK)
-        self.look_window_action = Action("You look at the window.", ActionType.LOOK)
-        self.move_north_action = Action("You move north.", ActionType.MOVE)
-        self.move_south_action = Action("You move south.", ActionType.MOVE)
-        self.take_key_action = Action("You take the key.", ActionType.TAKE)
-        self.combine_key_and_door_action = Action("You combine the key and the door.", ActionType.COMBINE)
-        self.inventory_action = Action("You check your inventory.", ActionType.INVENTORY)
-        self.help_action = Action("Here's some help.", ActionType.HELP)
-        self.exit_action = Action("You exit the game.", ActionType.EXIT)
+        self.look_scene_action = Action(ActionType.LOOK, lambda e,a,s,p: "You look around the scene.")
+        self.look_door_action = Action(ActionType.LOOK, lambda e,a,s,p: "You examine the door closely.")
+        self.look_window_action = Action(ActionType.LOOK, lambda e,a,s,p: "You peer out the window.")
+        self.move_north_action = Action(ActionType.MOVE, lambda e,a,s,p: "You move north.")
+        self.move_south_action = Action(ActionType.MOVE, lambda e,a,s,p: "You move south.")
+        self.take_key_action = Action(ActionType.TAKE, lambda e,a,s,p: "You take the key.")
+        self.combine_key_and_door_action = Action(ActionType.COMBINE, lambda e,a,s,p: "You use the key on the door.")
+        self.inventory_action = Action(ActionType.INVENTORY, lambda e,a,s,p: "You check your inventory.")
+        self.help_action = Action(ActionType.HELP, lambda e,a,s,p: SystemStrings.HELP_TEXT)
+        self.exit_action = Action(ActionType.EXIT, lambda e,a,s,p: SystemStrings.EXIT_TEXT)
 
         # Create a typical action dictionary structure
         self.action_dict = {
@@ -47,7 +47,6 @@ class TestGetAction(unittest.TestCase):
         """Test getting an action with a lowercase target."""
         result = get_action("look door", self.action_dict)
         self.assertEqual(result, self.look_door_action)
-        self.assertEqual(result.text, "You examine the door closely.")
 
     def test_get_action_with_target_uppercase(self):
         """Test getting an action with an uppercase command."""
@@ -77,7 +76,6 @@ class TestGetAction(unittest.TestCase):
         """Test getting a direct action without a target."""
         result = get_action("inventory", self.action_dict)
         self.assertEqual(result, self.inventory_action)
-        self.assertEqual(result.text, "You check your inventory.")
 
     def test_get_action_direct_action_help(self):
         """Test getting the help direct action."""
@@ -175,7 +173,6 @@ class TestGetAction(unittest.TestCase):
         result = get_action("move north", self.action_dict)
 
         self.assertIsInstance(result, Action)
-        self.assertEqual(result.text, "You move north.")
         self.assertEqual(result, self.move_north_action)
 
     def test_get_action_multiple_spaces_between_action_and_target(self):

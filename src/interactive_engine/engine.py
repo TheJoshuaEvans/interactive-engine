@@ -1,6 +1,7 @@
 from typing import Callable, Optional
 
 from interactive_engine.utils.get_action import get_action
+from interactive_engine.utils.deep_merge import deep_merge
 from interactive_engine.data_classes import Action, ActionType, Player, Scene
 from interactive_engine.strings import SceneStrings, SystemStrings
 
@@ -85,6 +86,23 @@ class InteractiveEngine:
 
         self._system_actions[action.action_type] = action
 
+    def get_all_actions(self) -> dict:
+        """
+        Get a merged dictionary of all actions available to the player, including scene actions,
+        player actions, and system actions.
+
+        Returns:
+            all_actions (dict): A dictionary of all available actions
+        """
+        if not self.current_scene:
+            return {}
+
+        return deep_merge(
+            self.current_scene.actions,
+            self.player.actions,
+            self._system_actions
+        )
+
     def run(self, run_str: str) -> str:
         """
         Run a given action string through the engine and return the resulting text
@@ -95,9 +113,10 @@ class InteractiveEngine:
             return "FATAL ERROR: No current scene set in engine."
 
         current_scene = self.current_scene
+        all_actions = self.get_all_actions()
         try:
-            # Get actions from the current scene and system actions
-            action = get_action(run_str, current_scene.actions | self._system_actions)
+            # Get actions from the current scene, player, and system sources
+            action = get_action(run_str, all_actions)
         except ValueError as e:
             return str(e)
 
