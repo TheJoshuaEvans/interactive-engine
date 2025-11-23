@@ -1,24 +1,31 @@
-from typing import Optional
+from typing import Callable, Optional
 
 from interactive_engine.utils.get_action import get_action
 from interactive_engine.data_classes import Action, ActionType, Player, Scene
-from interactive_engine.strings import SystemStrings
+from interactive_engine.strings import SceneStrings, SystemStrings
+
+on_exit_def = Callable[[], None]
+"""
+Type alias for the callable signature used when setting an "on exit" method.
+"""
 
 class InteractiveEngine:
     """
     Core class for the Interactive Engine itself. This is a singleton that handles the processing for all
     actions and gameplay states
     """
+    _on_exit = lambda: None
+
     _instance = None
 
     _system_actions = {
         ActionType.HELP: Action(
-            text=SystemStrings.HELP_TEXT,
-            action_type=ActionType.HELP
+            action_type=ActionType.HELP,
+            on_action=lambda e,a,s,p: SystemStrings.HELP_TEXT
         ),
         ActionType.EXIT: Action(
-            text=SystemStrings.EXIT_TEXT,
-            action_type=ActionType.EXIT
+            action_type=ActionType.EXIT,
+            on_action=lambda e,a,s,p: SystemStrings.EXIT_TEXT
         ),
     }
 
@@ -37,6 +44,12 @@ class InteractiveEngine:
         self.player = Player() # type: Player
         """The player"""
 
+    def on_exit(self, on_exit: on_exit_def) -> None:
+        """
+        Set a callable to be executed when the engine detects an "exit" action.
+        """
+        self._on_exit = on_exit
+
     def set_starting_scene(self, scene: Scene) -> str:
         """
         Sets the starting scene of the game and applies default actions. Returns the start scene text (or
@@ -51,17 +64,10 @@ class InteractiveEngine:
         # Set the current scene
         self.current_scene = scene
 
-        # Add a default LOOK action that shows the scene text
-        self.current_scene.add_action(
-            action_type=ActionType.LOOK,
-            keyword='scene',
-            action=Action(text=scene.text)
-        )
-
         # Build the output text
         out_text = ''
         if scene.start_text:
-            out_text = f"{scene.start_text}\n\nTaking a look around you see...\n\n{scene.text}"
+            out_text = f"{scene.start_text}{SceneStrings.SCENE_DESCRIPTION_TRANSITION}{scene.text}"
         else:
             out_text = scene.text
 
@@ -88,24 +94,16 @@ class InteractiveEngine:
             # This should never ever happen if the engine is used correctly
             return "FATAL ERROR: No current scene set in engine."
 
+        current_scene = self.current_scene
         try:
-            action = get_action(run_str, self.current_scene.actions | self._system_actions)
+            # Get actions from the current scene and system actions
+            action = get_action(run_str, current_scene.actions | self._system_actions)
         except ValueError as e:
             return str(e)
 
-        # Perform any side effects of the action
-        if action.gives_items:
-            self.player.add_inventory_items(action.gives_items)
-        if action.removes_items:
-            self.player.remove_inventory_items(action.removes_items)
-        if action.target_scene:
-            # Add a default LOOK action that shows the scene text
-            action.target_scene.add_action(
-                action_type=ActionType.LOOK,
-                keyword='scene',
-                action=Action(text=action.target_scene.text)
-            )
-            self.current_scene = action.target_scene
+        # Handle exit action special case
+        if action.action_type == ActionType.EXIT:
+            self._on_exit()
 
         # Return the action text
-        return action.text
+        return action.run_action(self, current_scene, self.player)

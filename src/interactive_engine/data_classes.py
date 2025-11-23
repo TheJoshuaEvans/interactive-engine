@@ -3,7 +3,7 @@ from typing import Callable, Optional
 
 from interactive_engine.strings import PlayerStrings, SystemStrings
 
-on_action_base = Callable[[object, 'Action', 'Scene', 'Player'], None]
+on_action_def = Callable[[object, 'Action', 'Scene', 'Player'], str]
 """
 Type alias for the callable signature used for the on_action attribute in the Action class.
 
@@ -13,6 +13,9 @@ Args:
     Scene: The current scene
     Player: The current player
 """
+
+empty_lambda_def = lambda engine, action, scene, player: str()
+"""An "empty" lambda that matches the on_action_base signature"""
 
 class ActionType(Enum):
     """Enumeration of possible action types in the interactive engine."""
@@ -47,45 +50,16 @@ class Action:
     """Class representing an action in the interactive engine."""
     def __init__(
             self,
-            text: str,
-            action_type: Optional[ActionType] = None,
-            success_text: Optional[str] = None,
-            fail_text_lack_items: Optional[str] = None,
-            target_scene: Optional['Scene'] = None,
-            gives_items: Optional[list['Item']] = None,
-            requires_items: Optional[list['Item']] = None,
-            removes_items: Optional[list['Item']] = None
+            action_type: Optional[ActionType] = ActionType.EMPTY,
+            on_action: on_action_def = empty_lambda_def
         ):
-        # Required attributes
-        self.text = text
-        """The text to display when the action is called"""
-
-        # Optional attributes
         self.action_type = action_type
         """This action's type"""
 
-        self.success_text: Optional[str] = success_text
-        """The text to display on successful completion of the action, if applicable"""
+        self.on_action: on_action_def = on_action
+        """Callable to execute when the action is performed. Returns the action text"""
 
-        self.fail_text_lack_items: Optional[str] = fail_text_lack_items
-        """The text to display if the action lacks required items, if applicable"""
-
-        self.target_scene: Optional[Scene] = target_scene
-        """The scene this action leads to, if any"""
-
-        self.gives_items: Optional[list[Item]] = gives_items
-        """Items this action gives to the player, if any"""
-
-        self.requires_items: Optional[list[Item]] = requires_items
-        """Items required to perform this action, if any"""
-
-        self.removes_items: Optional[list[Item]] = removes_items
-        """Items this action removes from the player, if any"""
-
-        self.on_action: on_action_base = lambda engine, action, scene, player: None
-        """Callable to execute when the action is performed"""
-
-    def run_action(self, engine, scene: 'Scene', player: 'Player'):
+    def run_action(self, engine, scene: 'Scene', player: 'Player') -> str:
         """
         Perform side-effects of running an action
 
@@ -93,13 +67,13 @@ class Action:
             scene (Scene): The current scene
             player (Player): The current player
         """
-        if self.on_action:
-            self.on_action(engine, self, scene, player)
+        return self.on_action(engine, self, scene, player)
 
     def __str__(self):
-        return f"Action(action_type={self.action_type}, text={self.text})"
+        return f"Action(action_type={self.action_type})"
 
-empty_action = Action(SystemStrings.MISSING_ACTION_TEXT, ActionType.EMPTY)
+
+empty_action = Action(ActionType.EMPTY)
 """Commonly used "empty" action instance"""
 
 class Player:
@@ -201,8 +175,15 @@ class Scene:
         action types are MOVE, LOOK, LISTEN, SPEAK, TOUCH, and TAKE.
         """
 
-        self.child_scenes = [] # type: list[Scene]
-        """A list of child scenes that inherit actions from this scene."""
+        self.state = {}
+        """A dictionary representing arbitrary state information for the scene."""
+
+        # Add the "look scene" action by default
+        self.add_action(
+            action_type=ActionType.LOOK,
+            keyword='scene',
+            action=Action(on_action=lambda e,a,s,p: s.text)
+        )
 
     def add_action(self, action_type: ActionType, keyword: str, action: Action):
         """
@@ -223,4 +204,15 @@ class Scene:
         self.actions[action_type][keyword] = action
 
         return action
+
+    def remove_action(self, action_type: ActionType, keyword: str):
+        """
+        Removes an action from the scene
+
+        Args:
+            action_type (ActionType): The type of action to remove
+            keyword (str): The keyword that triggers the action
+        """
+        if keyword in self.actions[action_type]:
+            del self.actions[action_type][keyword]
 

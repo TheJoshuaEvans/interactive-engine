@@ -12,12 +12,16 @@ class PlayerStrings:
     Default player description
     """
 
+class SceneStrings:
+    SCENE_DESCRIPTION_TRANSITION: ClassVar[str] = "\n\nTaking a look around you see...\n\n"
+    """
+    Text to display between the scene intro text and the scene description text
+    """
+
 # Global strings used across the system for various messages and prompts
 class SystemStrings:
     EXIT_TEXT: ClassVar[str] = "Exiting game... Thanks for playing!"
-    """
-    Default exit message when the player chooses to exit the game.
-    """
+    """Default exit message when the player chooses to exit the game."""
 
     HELP_TEXT: ClassVar[str] = (
         "Available commands:\n"
