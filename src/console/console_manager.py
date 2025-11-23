@@ -33,6 +33,8 @@ class ConsoleManager:
     # Default border color
     _border_color = Colors.BLUE
 
+    _border_text = ''
+
     _break_char: str = ''
 
     _dinkus_char: str = '='
@@ -91,6 +93,26 @@ class ConsoleManager:
             color (str): The new border color.
         """
         self._border_color = color
+
+    @property
+    def border_text(self) -> str:
+        """
+        Gets the current border text for the console window.
+
+        Returns:
+            str: The border text.
+        """
+        return self._border_text
+
+    @border_text.setter
+    def border_text(self, text: str) -> None:
+        """
+        Sets a new border text for the console window.
+
+        Args:
+            text (str): The new border text.
+        """
+        self._border_text = text
 
     @property
     def dinkus_char(self) -> str:
@@ -275,7 +297,25 @@ class ConsoleManager:
         bordered_lines = [border_chars + line + border_chars for line in padded_lines]
 
         # Add a single bottom border to match the console height
-        bottom_border = [border_chars * width]  # Single line of border at the bottom
+        if self._border_text:
+            # Calculate border text positioning
+            border_text_visible = remove_styles(self._border_text)
+            text_length = len(border_text_visible)
+
+            # Calculate how many border characters we need on each side
+            remaining_width = width - text_length
+            left_border_width = remaining_width // 2
+            right_border_width = remaining_width - left_border_width
+
+            # Build the bottom border with text in the middle
+            bottom_border_line = (
+                border_chars * left_border_width +
+                f"{self.border_color}{self._border_text}{Colors.RESET}" +
+                border_chars * right_border_width
+            )
+            bottom_border = [bottom_border_line]
+        else:
+            bottom_border = [border_chars * width]  # Single line of border at the bottom
 
         # Combine all parts
         final_output = top_border + bordered_lines + bottom_border
