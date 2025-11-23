@@ -2,9 +2,21 @@
 
 # TJE Interactive: Engine
 
-A python-based text-based adventure engine with some games
+A python-based text-based adventure engine that uses the native console!
 
 Currently in pre-alpha development of "Wizard Emergency" (Working title)
+
+Initial development of this project is being done as part of the [LCC CS210 Course](https://lcc-cit.github.io/CS210-CourseMaterials/). This project is meant to satisfy the requirements of Lab 5, Lab 6, Lab 7, and the term project - as enumerated [[here](https://lcc-cit.github.io/CS210-CourseMaterials/LectureNotes/CS210-Unit07-0-Overview.html#assignments-due)]
+
+- [X] Lab 5 - Use "[AI Assisted Coding](https://lcc-cit.github.io/CS210-CourseMaterials/LectureNotes/CS210-Unit07-2-AI-AssistedCoding)" to make a simple text-based adventure engine and make a short demo game
+- [ ] Lab 6 - Update the engine to use AI for processing loose input into strict inputs. For example, allowing "i want to go west" instead of restricting the program to specific instruction "move west"
+- [ ] Lab 7 - Use modular / agentic AI to give the AI control over writing the prompts and descriptions, with resources that will give the model programmatic access to game state as needed
+- [ ] Term Project - Actually make a complete game with a little narrative that can stretch the system a little bit
+
+Once development related to the class is complete, there remains a couple tasks:
+
+- [ ] Early-Access Release - Release game on steam under early access and have players provide their own ChatGPT API key
+- [ ] Final Release - Use the system to pre-generate as many responses for as many scenarios as is possible, even up to gigabytes of text - then release a full version of the game that doesn't require an active connection to a cloud AI
 
 # Releases
 [[Release Page](https://github.com/TheJoshuaEvans/interactive-engine/releases)]

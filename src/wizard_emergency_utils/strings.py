@@ -1,4 +1,4 @@
-from console.console_styles import Codes, style
+from console.console_styles import BrightColors, Codes, style
 
 # ================ System Strings ===================
 class GameStrings:
@@ -7,6 +7,10 @@ class GameStrings:
         "Welcome to Wizard Emergency! You are a wizard and there is an emergency!\n"
         "Type 'exit' to quit or 'help' for assistance. Run an empty command to re-render the console."
     )
+
+    GAME_TITLE_TEXT = f" {BrightColors.BLUE}=== Wizard Emergency {{version}} ==={BrightColors.RESET} "
+
+    ACTIONS_REMAINING_TEXT = f" {BrightColors.BLUE}- Actions remaining: {{actions_remaining}} -{BrightColors.RESET} "
 
     EXIT_TEXT = "\nGoodbye, wizard! Stay safe out there."
 
@@ -31,6 +35,13 @@ class ActionStrings:
             "You pick up the dusty old hat from the stool, give it a quick shake, and place it on your head. "
             "You don't feel any more magical, but you do feel far less naked. "
             "The dust from the hat tickles your nose."
+        )
+
+    class TakeStool:
+        CODE = "stool"
+
+        TEXT = (
+            "You consider taking the clean stool, but you don't."
         )
 
     class TakeCellDoorKey:
@@ -106,7 +117,7 @@ class SceneStrings:
             DOOR_OPEN = "The cell door stands open, leading into a strange mist. You do no know what lies beyond."
 
             HAT_NOT_TAKEN = "Your magic wizard hat sits on a small stool in the corner, covered in dust."
-            HAT_TAKEN = "There is an empty stool in the corner where your wizard hat used to be. The stool is completely absent of dust."
+            HAT_TAKEN = "There is an empty stool in the corner where your wizard hat once sat. The stool is completely absent of dust."
 
             KEY_NOT_TAKEN = "There is a key hanging next to the door."
             KEY_TAKEN = "A dust mark hangs next to the door, where the key used to be."

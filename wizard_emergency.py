@@ -93,6 +93,15 @@ def start_game(console: ConsoleManager) -> None:
         if s.state.get(StateKeys.DOOR_OPEN, False):
             s.text = SceneStrings.DustyCell.DOOR_OPEN_HAT_TAKEN_TEXT
 
+        # Now that the hat is taken, maybe take the stool too? (Not actually)
+        dusty_cell.add_action(
+            action_type=ActionType.TAKE,
+            keyword=ActionStrings.TakeStool.CODE,
+            action=Action(
+                on_action=lambda e,a,s,p: ActionStrings.TakeStool.TEXT
+            ),
+        )
+
         return ActionStrings.TakeWizardHat.TEXT
 
     dusty_cell.add_action(
@@ -166,8 +175,8 @@ def start_game(console: ConsoleManager) -> None:
         ),
     )
 
-    console.bottom_border_text = f" - Actions Remaining: {actions_remaining} - "
-    console.top_border_text = f"{BrightColors.BLUE} - Wizard Emergency v{get_version()} - {BrightColors.RESET}"
+    console.top_border_text = GameStrings.GAME_TITLE_TEXT.format(version=get_version())
+    console.bottom_border_text = GameStrings.ACTIONS_REMAINING_TEXT.format(actions_remaining=actions_remaining)
 
     start_text = engine.set_starting_scene(dusty_cell)
     console.write(start_text)
