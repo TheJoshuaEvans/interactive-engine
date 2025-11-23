@@ -49,11 +49,19 @@ def start_game(console: ConsoleManager) -> None:
         description=PlayerStrings.DESCRIPTION
     )
 
-    #* Define the starting scene - the dusty cell
+    #* Define the scenes
+    # The dusty cell (the starting scene)
     dusty_cell = Scene(
         name=SceneStrings.DustyCell.NAME,
         start_text=SceneStrings.DustyCell.START_TEXT,
         text=SceneStrings.DustyCell.INITIAL_TEXT
+    )
+
+    # A mysterious misty expanse (the ending scene)
+    misty_expanse = Scene(
+        name=SceneStrings.MistyExpanse.NAME,
+        start_text=SceneStrings.MistyExpanse.START_TEXT,
+        text=SceneStrings.MistyExpanse.TEXT
     )
 
     #* Define items that are in the dusty cell
@@ -145,7 +153,10 @@ def start_game(console: ConsoleManager) -> None:
         if not p.inventory_contains([wizard_hat_item]):
             return ActionStrings.MoveDoor.FAIL_NO_HAT_TEXT
 
-        return ActionStrings.MoveDoor.TEXT
+        # Move to the misty expanse
+        engine.current_scene = misty_expanse
+
+        return f"{ActionStrings.MoveDoor.TEXT}\n\n{misty_expanse.start_text}"
     dusty_cell.add_action(
         action_type=ActionType.MOVE,
         keyword=ActionStrings.MoveDoor.CODE,

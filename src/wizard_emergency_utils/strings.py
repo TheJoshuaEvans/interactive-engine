@@ -1,4 +1,4 @@
-from typing import ClassVar
+from console.console_styles import Codes, style
 
 # ================ System Strings ===================
 class GameStrings:
@@ -123,3 +123,21 @@ class SceneStrings:
         KEY_HAT_TAKEN_TEXT = f"{Snippets.BASE_DESCRIPTION} {Snippets.KEY_TAKEN} {Snippets.HAT_TAKEN}"
         DOOR_OPEN_TEXT = f"{Snippets.BASE_DESCRIPTION} {Snippets.DOOR_OPEN} {Snippets.KEY_TAKEN} {Snippets.HAT_NOT_TAKEN}"
         DOOR_OPEN_HAT_TAKEN_TEXT = f"{Snippets.BASE_DESCRIPTION} {Snippets.DOOR_OPEN} {Snippets.KEY_TAKEN} {Snippets.HAT_TAKEN}"
+
+    class MistyExpanse:
+        NAME = "Misty Expanse"
+
+        START_TEXT = (
+            f"\n{style(Codes.COLOR_GREEN, Codes.BG_COLOR_MAGENTA, Codes.BLINK)}CONGRATULATIONS!{style(Codes.RESET)}\n\n"
+            "You have escaped the dusty cell and stepped into the unknown misty expanse beyond. "
+            "New adventures will be coming soon - this is only the beginning!\n\n"
+            "There is nothing more to do here. Type 'exit' to leave the game.\n\n"
+            "Thanks for playing!"
+        )
+
+        TEXT = (
+            "You are standing in a vast expanse of swirling mist. "
+            "The mist glows faintly with an ethereal light, making it impossible to see very far. "
+            "Strange shapes seem to move within the mist, but you can't quite make them out. "
+            "It's almost as if the mist itself is alive, and is preparing new trials for you to face..."
+        )
