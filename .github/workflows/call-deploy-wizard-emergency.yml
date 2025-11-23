@@ -76,7 +76,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: wizard-emergency-*/*
-          tag_name: Wizard Emergency v${{ inputs.tag }}
-          body: "Multi-platform release for Wizard Emergency v${{ inputs.tag }}"
+          tag_name: ${{ inputs.tag }}
+          name: "Wizard Emergency ${{ inputs.tag }}"
+          body: "Multi-platform release for Wizard Emergency ${{ inputs.tag }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
