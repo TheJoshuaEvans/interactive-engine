@@ -32,34 +32,51 @@ To play the game, just download the correct release for your platform and run th
 The binaries are unsigned, since this is just very early days, so your system will likely give you security warnings when running it. The release process is entirely automated using resources publicly available on GitHub (or trusted providers), so feel free to give it an audit if you are concerned. The [deployment workflows themselves](./.github/workflows/on-push-branch-main.yml) are a good place to start
 
 # Development
+## Run from Source with Docker
+The best way to run the wizard-emergency game from source is to use docker (Thank you @portalsoup! <3). Assuming you have docker available on your system, use the following command to build the docker image and run the game in a fresh container:
+```sh
+docker-compose run --rm wizard-emergency
+# - or -
+poe run:docker # Running in an established environment
+```
 
-## 1. Install Python v3.12
-Other minor versions may work, but this project is designed to specifically use python v3.12
+Running the game in this way will automatically use the project files without the need to rebuild the docker image. To build and run a standalone image, run these commands:
+```sh
+docker build -t wizards .
+# - or -
+poe build:docker # Running in an established environment
 
-I use us `uv` (https://github.com/astral-sh/uv) to handle python versions, and this project is configured to automatically use the correct version when using `uv`. When running a script with `uv`, replace `python` with `uv` or `uv run` depending on the context. Other platforms may also have different "python" path strings
+docker run -it wizards
+```
 
-## 2. Set up environment
-Set up python dependencies
+Note that building the game for distribution requires a native environment to be set up and cannot be done with docker alone
+
+## Manual Setup
+These are instructions for manually setting up a native python environment. Replace any instance of `python` with the correct python command for your system (`python3`, `py`, `uv run`, etc). [`poethepoet`](https://poethepoet.natn.io/index.html) is used for running simple commands, once the requirements are installed
+
+### Initialization
+This is a python v3.12 project, so you must have some python 3 version available on your system. Assuming python is installed, run the following commands to set up your environment:
 ```sh
 python venv
-python pip install -r requirements.txt
+source ./venv/bin/activate # Activate the virtual environment
+pip install -r requirements.txt
 ```
 
-## 3. Run unit tests
+### Run unit tests
 Run all the unit tests
 ```sh
-python -m unittest discover -s src -p "test*.py"
+poe test
 ```
 
-## 4. Run the game
+### Run the game
 Before running the game, ensure the `PYTHONPATH` environment variable is set to "src"
 
-Linux:
+#### Linux:
 ```sh
 export PYTHONPATH=src
 ```
 
-Windows (Powershell):
+#### Windows (Powershell):
 ```ps
 $env:PYTHONPATH = "src"
 ```
@@ -67,24 +84,14 @@ $env:PYTHONPATH = "src"
 Once the envar is set for the current session, you can run the main game file directly
 
 ```sh
-python wizard_emergency.py
+poe run
 ```
 
-## 5. Build the game
+### Build the game
 The build will be for the current system. On Ubuntu it generates a runnable library, on Windows it generates a .exe, etc
 ```sh
-python pyinstaller wizard_emergency.spec
-```
-
-# `uv` Commands
-For convenience, all the commands in the "uv" format:
-```sh
-uv venv
-uv pip install -r requirements.txt
-uv run wizard_emergency.py
-uv run -m unittest discover -s src -p "test*.py"
-uv run pyinstaller wizard_emergency.spec
+poe build
 ```
 ---
 
-[Developed using Copilot](https://github.com/features/copilot)
+[Developed with assistance from Copilot](https://github.com/features/copilot)

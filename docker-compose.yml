@@ -1,0 +1,14 @@
+services:
+  wizard-emergency:
+    build: .
+    container_name: wizard-emergency
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./src:/app/src
+      - ./pyproject.toml:/app/pyproject.toml
+      - ./wizard_emergency.py:/app/wizard_emergency.py
+      - ./requirements.txt:/app/requirements.txt
+    environment:
+      - PYTHONPATH=/app/src
+    command: python wizard_emergency.py

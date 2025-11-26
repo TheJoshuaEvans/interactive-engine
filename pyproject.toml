@@ -3,4 +3,22 @@ name = "tje-interactive-engine"
 version = "0.2.0"
 readme = "README.md"
 requires-python = ">=3.12"
-source = { virtual = "." }
+
+[tool.poe.tasks]
+# Run all unit tests
+test = "python -m unittest discover -s src -p \"test*.py\""
+
+# Run the Wizard Emergency game
+run = "python wizard_emergency.py"
+
+# Run the Wizard Emergency game inside a Docker container
+'run:docker' = "docker-compose run --rm wizard-emergency"
+
+# Build the Wizard Emergency executable using PyInstaller
+build = "python -m PyInstaller wizard_emergency.spec"
+
+# Build the Wizard Emergency executable for MacOS
+'build:mac' = "python -m PyInstaller wizard_emergency_mac.spec"
+
+# Build the Wizard Emergency executable inside a Docker container
+'build:docker' = "docker build -t wizards ."
