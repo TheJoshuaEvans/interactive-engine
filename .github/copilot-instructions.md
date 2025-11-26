@@ -12,10 +12,7 @@ Project root directory for TheJoshuaEvans' local machine:
 /root/dev/tje/interactive-engine
 ```
 
-When running in TheJoshuaEvans' local environment, "uv" is used for python version management and must be used when running commands instead of "python" (so `python file.py` becomes `uv run file.py` and `python pip install` becomes `uv pip install`). "uv" documentation can be found here: https://github.com/astral-sh/uv
-
 Test command on TheJoshuaEvans' local environment:
 ```sh
-cd /root/dev/tje/interactive-engine &&
-uv run -m unittest src/PATH/TO/FILE.py -v
+cd /root/dev/tje/interactive-engine && poe test
 ```
