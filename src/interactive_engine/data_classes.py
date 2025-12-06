@@ -99,8 +99,8 @@ class Player:
                 on_action=lambda e,a,s,p: PlayerStrings.INVENTORY_EMPTY_TEXT
                 if len(p.inventory) == 0 else
                 PlayerStrings.INVENTORY_LIST_TEXT.format(
-                    items=' (x1)\n- '.join([item.name for item in p.inventory])
-                ) + ' (x1)'
+                    items=' \n- '.join([item.name for item in p.inventory])
+                )
             )
         }
         """

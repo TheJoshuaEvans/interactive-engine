@@ -78,6 +78,14 @@ class ActionStrings:
             "The door is still closed. You need to use the key on it first."
         )
 
+    class LookStatue:
+        CODE = "statue"
+
+        TEXT = (
+            "You take a closer look at the shimmering statue. As you approach, it seems to ripple and shift, "
+            "almost as if it's made of liquid light. You feel a strange pull towards it, as if it's calling to you."
+        )
+
 class ItemStrings:
     """Strings for various items in the Wizard Emergency game."""
     class WizardHat:
@@ -151,4 +159,19 @@ class SceneStrings:
             "The mist glows faintly with an ethereal light, making it impossible to see very far. "
             "Strange shapes seem to move within the mist, but you can't quite make them out. "
             "It's almost as if the mist itself is alive, and is preparing new trials for you to face..."
+        )
+
+    class StatueChamber:
+        NAME = "Statue Chamber"
+
+        START_TEXT = (
+            "As you pass through the strange mist, you find yourself in a grand hall filled floor-to-ceiling with ancient statues in every shape imaginable. "
+            "The door behind you vanishes into the mist, leaving you with no choice but to move forward."
+        )
+
+        TEXT = (
+            "You are in a grand hall filled with ancient statues. The air is thick with dust and the scent of old stone. "
+            "The statues seem to watch you as you move, their eyes following your every step. "
+            "At the far end of the hall, the massive statue on the obsidian pedestal seems to shimmer and shift, "
+            "as if it is not entirely solid. You feel a strange pull towards it, as if it is calling to you."
         )

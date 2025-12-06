@@ -207,6 +207,7 @@ marimo/_lsp/
 __marimo__/
 
 # Don't ignore the pre-defined specs
-!wizard_emergency_linux.spec
 !wizard_emergency_mac.spec
 !wizard_emergency.spec
+!vampire_mac.spec
+!vampire.spec

@@ -197,6 +197,37 @@ class ConsoleManager:
         self._input_prefix = prefix
 
     # --------- Private Methods ---------
+    def _render_border_with_text(self, text: str, width: int) -> str:
+        """Renders a border line with optional text centered in the middle.
+
+        Args:
+            text (str): The text to display in the center of the border.
+            width (int): The total width of the border line.
+
+        Returns:
+            str: The formatted border line with text.
+        """
+        border_chars = f'{self.border_color}{self.border_char}{Colors.RESET}'
+
+        if not text:
+            return border_chars * width
+
+        # Calculate border text positioning
+        border_text_visible = remove_styles(text)
+        text_length = len(border_text_visible)
+
+        # Calculate how many border characters we need on each side
+        remaining_width = width - text_length
+        left_border_width = remaining_width // 2
+        right_border_width = remaining_width - left_border_width
+
+        # Build the border with text in the middle
+        return (
+            border_chars * left_border_width +
+            f"{self.border_color}{text}{Colors.RESET}" +
+            border_chars * right_border_width
+        )
+
     def _render_dinkus(self) -> str:
         """Renders a dinkus line across the console window using the configured dinkus character and color and returns it as a string."""
         separator = '  '
@@ -224,6 +255,22 @@ class ConsoleManager:
         styled_dinkus_line = f"{self._dinkus_color}{dinkus_line}{Colors.RESET}"
         return styled_dinkus_line
 
+    def _expand_lines(self, lines: List[str]) -> List[str]:
+        """Expands lines by splitting on newline characters.
+
+        Args:
+            lines (List[str]): Lines to expand.
+
+        Returns:
+            List[str]: Expanded lines with newlines split into separate entries.
+        """
+        expanded_lines = []
+        for line in lines:
+            expanded_lines.extend(line.splitlines())
+            if line.endswith('\n'):
+                expanded_lines.append('')
+        return expanded_lines
+
     def _get_history_outputs(self) -> List[str]:
         """
         Retrieves the text of all output entries from the console history, replacing dinkus lines with
@@ -246,6 +293,42 @@ class ConsoleManager:
         history_outputs = [entry.text for entry in history_output_entries]
         return history_outputs
 
+    def _prepare_padded_lines(self, lines: List[str], content_width: int) -> List[str]:
+        """Prepares lines by wrapping and padding them to fit within the content width.
+
+        Args:
+            lines (List[str]): The lines to prepare.
+            content_width (int): The available width for content.
+
+        Returns:
+            List[str]: The prepared, padded lines.
+        """
+        padded_lines = []
+        for line in lines:
+            # Truncate leading whitespace from the line
+            line = line.lstrip()
+
+            # Visible version without ANSI styles for length calculations
+            stripped = remove_styles(line)
+
+            # Break into multiple lines if the visible characters exceed the available content width
+            if len(stripped) > content_width:
+                # Wrap the text while preserving ANSI escape sequences and stripping leading whitespace on wrapped lines
+                wrapped = self._wrap_text_with_ansi(line, content_width, strip_leading_whitespace=True)
+                for wrapped_line in wrapped:
+                    wrapped_line = wrapped_line.lstrip()
+                    visible_text = remove_styles(wrapped_line)
+                    padding_needed = max(0, content_width - len(visible_text))
+                    padded_line = f' {wrapped_line} ' + (' ' * padding_needed)
+                    padded_lines.append(padded_line)
+            else:
+                # Compute padding based on visible length only
+                padding_needed = max(0, content_width - len(stripped))
+                padded_line = f' {line} ' + (' ' * padding_needed)
+                padded_lines.append(padded_line)
+
+        return padded_lines
+
     def _clear_console(self) -> None:
         """
         Clears the console screen using the appropriate system command.
@@ -260,107 +343,36 @@ class ConsoleManager:
         Prints the given lines to fill the console window, padding/truncating as needed. Uses get_console_size
         for default width and height if not provided. Adds a border around the content using the border_char.
         """
+        # Determine dimensions
         if width is None or height is None:
             width_, height_ = self.get_console_size()
             width = width if width is not None else width_
             height = height if height is not None else height_
 
-        # Go through all the lines and separate new line characters into individual lines
-        expanded_lines = []
-        for line in lines:
-            expanded_lines.extend(line.splitlines())
-            if line.endswith('\n'):
-                expanded_lines.append('')
-        lines = expanded_lines
-
-        # Pad or truncate each line to fit the console width minus borders
+        # Expand lines and prepare them with padding
+        expanded_lines = self._expand_lines(lines)
         content_width = width - 4  # Account for left, right borders, and horizontal buffer
-
-        padded_lines: list[str] = []
-        for line in lines:
-            # Truncate leading whitespace from the line
-            line = line.lstrip()
-
-            # Visible version without ANSI styles for length calculations
-            stripped = remove_styles(line)
-
-            # Break into multiple lines if the visible characters exceed the available content width
-            if len(stripped) > content_width:
-                # Wrap the text while preserving ANSI escape sequences and stripping leading whitespace on wrapped lines
-                wrapped = self._wrap_text_with_ansi(line, content_width, strip_leading_whitespace=True)
-                for wrapped_line in wrapped:
-                    visible_text = remove_styles(wrapped_line)
-                    padding_needed = max(0, content_width - len(visible_text))
-                    padded_line = f' {wrapped_line} ' + (' ' * padding_needed)
-                    padded_lines.append(padded_line)
-            else:
-                display_text = line
-                visible_text = stripped
-                # Compute padding based on visible length only
-                padding_needed = max(0, content_width - len(visible_text))
-                padded_line = f' {display_text} ' + (' ' * padding_needed)
-                padded_lines.append(padded_line)
+        padded_lines = self._prepare_padded_lines(expanded_lines, content_width)
 
         # Fill remaining lines with spaces if not enough lines, including vertical buffer
+        empty_line = ' ' * (content_width + 2)
         while len(padded_lines) < height - 2:  # Account for top and bottom vertical buffer
-            padded_lines.insert(0, ' ' * (content_width + 2))
+            padded_lines.insert(0, empty_line)
 
-        # Include escape codes for border color
-        border_chars = f'{self.border_color}{self.border_char}{Colors.RESET}'
-
-        # Ensure the top border is always a single line, regardless of overflow
-        if self._top_border_text:
-            # Calculate border text positioning
-            border_text_visible = remove_styles(self._top_border_text)
-            text_length = len(border_text_visible)
-
-            # Calculate how many border characters we need on each side
-            remaining_width = width - text_length
-            left_border_width = remaining_width // 2
-            right_border_width = remaining_width - left_border_width
-
-            # Build the top border with text in the middle
-            top_border_line = (
-                border_chars * left_border_width +
-                f"{self.border_color}{self._top_border_text}{Colors.RESET}" +
-                border_chars * right_border_width
-            )
-            top_border = [top_border_line]
-        else:
-            top_border = [border_chars * width]  # Single top border line
-
-        # Add vertical buffer (empty line) below the top border
-        padded_lines.insert(0, ' ' * (content_width + 2))
-        padded_lines.append(' ' * (content_width + 2))
+        # Add vertical buffer (empty line) at top and bottom
+        padded_lines.insert(0, empty_line)
+        padded_lines.append(empty_line)
 
         # Add side borders to each line
+        border_chars = f'{self.border_color}{self.border_char}{Colors.RESET}'
         bordered_lines = [border_chars + line + border_chars for line in padded_lines]
 
-        # Add a single bottom border to match the console height
-        if self._bottom_border_text:
-            # Calculate border text positioning
-            border_text_visible = remove_styles(self._bottom_border_text)
-            text_length = len(border_text_visible)
+        # Build top and bottom borders using the helper method
+        top_border = [self._render_border_with_text(self._top_border_text, width)]
+        bottom_border = [self._render_border_with_text(self._bottom_border_text, width)]
 
-            # Calculate how many border characters we need on each side
-            remaining_width = width - text_length
-            left_border_width = remaining_width // 2
-            right_border_width = remaining_width - left_border_width
-
-            # Build the bottom border with text in the middle
-            bottom_border_line = (
-                border_chars * left_border_width +
-                f"{self.border_color}{self._bottom_border_text}{Colors.RESET}" +
-                border_chars * right_border_width
-            )
-            bottom_border = [bottom_border_line]
-        else:
-            bottom_border = [border_chars * width]  # Single line of border at the bottom
-
-        # Combine all parts
+        # Combine all parts and print
         final_output = top_border + bordered_lines + bottom_border
-
-        # Actually perform the prints
         self._clear_console()
         for line in final_output:
             print(line)
@@ -471,34 +483,41 @@ class ConsoleManager:
         return wrapped_lines if wrapped_lines else [text]
 
     # --------- Methods ---------
-    def write(self, text: str, clear: bool = False, is_dinkus: bool = False) -> None:
+    def write(self, text: str, clear: bool = False, is_dinkus: bool = False, render: bool = True) -> None:
         """
-        Writes text at the bottom of the console and records it in history
+        Writes text at the bottom of the console and records it in history.
 
         Args:
             text (str): The text to display.
-            clear (bool): If True, clears the console before writing.
+            clear (bool): If True and render is True, clears the console before writing.
+            is_dinkus (bool): Whether this entry represents a dinkus separator.
+            render (bool): If True (default), updates the console display immediately. If False, the
+                text is only added to history without rendering; accumulated history will appear on
+                the next rendered operation.
         """
-        if clear:
+        if clear and render:
             self._clear_console()
 
+        # Always record in history first (so subsequent render operations include this line)
         history_outputs = self._get_history_outputs()
-
-        # Prepare lines to display, including the new line
         lines_to_display = history_outputs.copy()
         lines_to_display.append(text)
 
-        # Print to the console
-        self._print_console_window(lines_to_display)
+        if render:
+            self._print_console_window(lines_to_display)
 
-        # Record in history
+        # Record in history (after potential render so history reflects what was added)
         self._history.append(ConsoleEntry(text, False, is_dinkus))
 
-    def write_empty(self) -> None:
+    def write_empty(self, render: bool = True) -> None:
         """
         Writes an empty line to the console and records it in history.
+
+        Args:
+            render (bool): If True (default), renders the empty line immediately. If False, only adds
+                the line to history.
         """
-        self.write(" ")
+        self.write(" ", render=render)
 
     def input(self, prompt: Optional[str] = None) -> str:
         """
@@ -532,17 +551,21 @@ class ConsoleManager:
         self._history.append(ConsoleEntry(user_input, True, False))
         return user_input
 
-    def draw_dinkus(self) -> None:
+    def draw_dinkus(self, render: bool = True) -> None:
         """
         Draws a dinkus line across the console window using the configured dinkus character and color.
+
+        Args:
+            render (bool): If True (default), renders the dinkus and surrounding empty lines
+                immediately. If False, only adds them to history.
         """
-        # Render the dinkus line
+        # Render the dinkus line (always generate it; render flag controls display)
         dinkus_line = self._render_dinkus()
 
         # Write two empty lines, the dinkus line, and another empty line
-        self.write_empty()
-        self.write(dinkus_line, is_dinkus=True)
-        self.write_empty()
+        self.write_empty(render=render)
+        self.write(dinkus_line, is_dinkus=True, render=render)
+        self.write_empty(render=render)
 
     def get_history(self) -> List['ConsoleEntry']:
         """

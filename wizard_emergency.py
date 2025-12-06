@@ -77,7 +77,7 @@ def start_game(console: ConsoleManager) -> None:
         description=ItemStrings.CellDoorKey.DESCRIPTION
     )
 
-    #* Add actions to the scene
+    #* Add actions to the dusty cell scene
     # Take the wizard hat
     def on_take_hat(e,a:Action,s:Scene,p:Player) -> str:
         p.add_inventory_items([wizard_hat_item])
@@ -164,9 +164,11 @@ def start_game(console: ConsoleManager) -> None:
             return ActionStrings.MoveDoor.FAIL_NO_HAT_TEXT
 
         # Move to the misty expanse
-        engine.current_scene = misty_expanse
+        engine.set_current_scene(misty_expanse)
 
+        # Return only the start text since this is the end of the game!
         return f"{ActionStrings.MoveDoor.TEXT}\n\n{misty_expanse.start_text}"
+
     dusty_cell.add_action(
         action_type=ActionType.MOVE,
         keyword=ActionStrings.MoveDoor.CODE,
@@ -178,7 +180,7 @@ def start_game(console: ConsoleManager) -> None:
     console.top_border_text = GameStrings.GAME_TITLE_TEXT.format(version=get_version())
     console.bottom_border_text = GameStrings.ACTIONS_REMAINING_TEXT.format(actions_remaining=actions_remaining)
 
-    start_text = engine.set_starting_scene(dusty_cell)
+    start_text = engine.set_current_scene(dusty_cell)
     console.write(start_text)
 
 def main():
@@ -197,13 +199,13 @@ def main():
             continue
 
         # Print the user's input back to the console
-        console.write_empty()
-        console.write(f"> {user_input}")
-        console.write_empty()
+        console.write_empty(render=False)
+        console.write(f"> {user_input}", render=False)
+        console.write_empty(render=False)
 
         # Run the input through the engine and get the output
         output_text = engine.run(user_input)
-        console.write(output_text)
+        console.write(output_text, render=False)
 
 if __name__ == "__main__":
     try:

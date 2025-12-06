@@ -75,16 +75,16 @@ class InteractiveEngine:
         """
         self._on_exit = on_exit
 
-    def set_starting_scene(self, scene: Scene) -> str:
+    def set_current_scene(self, scene: Scene) -> str:
         """
-        Sets the starting scene of the game and applies default actions. Returns the start scene text (or
-        the regular scene text if no start text is provided).
+        Sets the current scene of the game and returns the start scene text (or the regular scene text
+        if no start text is available).
 
         Args:
-            scene (Scene): The scene to set as the starting scene
+            scene (Scene): The scene to set as the current scene
 
         Returns:
-            out (str): The text to display upon entering the starting scene
+            out (str): The text to display upon entering the current scene
         """
         # Set the current scene
         self.current_scene = scene
